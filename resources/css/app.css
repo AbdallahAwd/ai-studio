@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    scroll-behavior: smooth;
+}
+
+.left-abs {
+    left: 44%;
+
+}
+
+.left-l {
+    left: 45%;
+
+}
+
+.lef {
+    left: 32%;
+}
+
+.rig {
+    right: 34%;
+}
+
+.rig-l {
+    right: 20%;
+}
+
+.lef-l {
+    left: 18%;
+}

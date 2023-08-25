@@ -21,9 +21,9 @@ Route::get('/', function () {
 Route::get('/privacy', function () {
     return view('privacy');
 })->name('privacy');
-Route::get('/{any}', function () {
-    return view('error.404');
-})->where('any', '.*');
+// Route::get('/{any}', function () {
+//     return view('error.404');
+// })->where('any', '.*');
 
 Route::get('auth/google', [LoginController::class, 'redirect2Google'])->name('googleAuth');
 Route::get('auth/google/callback', [LoginController::class, 'handleGoogleCallback'])->name('googleCallback');

@@ -28,7 +28,7 @@ class UpdateLettersCount
 
                     $user->save();
                 } else {
-                    return response()->json(['message' => 'There is not enough letters']);
+                    return response()->json(['message' => 'There is not enough letters'], 404);
                 }
                 // Update the authenticated user's object
                 Auth::user()->letters_count = $user->letters_count;

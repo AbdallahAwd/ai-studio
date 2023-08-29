@@ -42,6 +42,7 @@ class PixbayController extends Controller
     {
 
         $videos = [];
+
         foreach ($ideas as $index => $idea) {
 
             $response = Http::get('https://pixabay.com/api/videos', [
@@ -64,6 +65,7 @@ class PixbayController extends Controller
 
     private function formatAsBulletList($script)
     {
+
         $points = explode("\n- ", $script);
         $formattedList = [];
         foreach ($points as $index => $point) {

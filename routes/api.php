@@ -39,9 +39,10 @@ Route::middleware(['auth:sanctum', 'update_letters_count'])->group(function () {
     });
     Route::prefix('/voice')->group(function () {
         Route::get('/', [ContentController::class, 'voices']);
-        Route::post('/generate', [ContentController::class, 'generateVoice']);
+        Route::post('/premium/generate', [ContentController::class, 'generateVoice']);
         Route::post('/clone', [ContentController::class, 'cloneVoice']);
         Route::get('/get', [ContentController::class, 'getUserVoices']);
+        Route::post('/simple/generate', [ContentController::class, 'simpleVoiceGeneration']);
 
     });
     Route::post('/clone', [ReplicateController::class, 'cloneVoice']);

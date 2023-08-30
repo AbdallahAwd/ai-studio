@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Content;
 
 use App\Http\Controllers\Controller;
 use App\Models\UserVoices;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -96,11 +97,17 @@ class ContentController extends Controller
      */
     public function voices()
     {
+        $jsonFilePath = public_path('img/voices.json');
+        $jsonContent = file_get_contents($jsonFilePath);
+
         $response = Http::get('https://api.elevenlabs.io/v1/voices');
 
         if ($response->successful()) {
 
-            return response()->json($response->json());
+            return response()->json([
+                "free" => json_decode($jsonContent),
+                "Premium" => $response->json()['voices'],
+            ]);
         } else {
 
             return response()->json($response->json(), $response->status());
@@ -204,6 +211,43 @@ class ContentController extends Controller
         $userVoices = UserVoices::where('user_id', $userId)->get();
 
         return response()->json(['voices' => $userVoices]);
+    }
+
+    public function simpleVoiceGeneration(Request $request)
+    {
+        try {
+            $request->validate([
+                'type' => 'required',
+                'speaker' => 'required',
+                'text' => 'required',
+            ]);
+
+            $client = new Client();
+
+            $response = $client->post('https://apis.topmediai.com/tts', [
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                ],
+                'form_params' => [
+                    'type' => $request['type'],
+                    'speaker' => $request['speaker'],
+                    'text' => "<speak>{$request['text']}</speak>",
+                ],
+            ]);
+
+            $path = json_decode($response->getBody(), true)['data'];
+            sleep(2);
+
+            $finaRes = $client->get("https://apis.topmediai.com/tts/audios/{$path}");
+            $audioData = $finaRes->getBody();
+            $fileName = 'AI-Studio-' . Str::random() . '.wav';
+            Storage::put('public/audios/' . $fileName, $audioData);
+
+            $audioUrl = Storage::url('public/audios/' . $fileName);
+            return response()->json(['audio_url' => $audioUrl], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()]);
+        }
     }
 
 }

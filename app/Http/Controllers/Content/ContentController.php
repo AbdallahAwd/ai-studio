@@ -104,8 +104,11 @@ class ContentController extends Controller
         $response = Http::get('https://api.elevenlabs.io/v1/voices');
 
         if ($response->successful()) {
+            $userId = Auth::user()->id;
+            $userVoices = UserVoices::where('user_id', $userId)->get();
 
             return response()->json([
+                'user' => $userVoices,
                 "free" => json_decode($jsonContent),
                 "Premium" => $response->json()['voices'],
             ]);

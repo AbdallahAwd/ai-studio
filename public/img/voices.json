@@ -4,9 +4,9 @@
         "trending": false,
         "name": "Jone (Male)",
         "describe": "",
-
+        "sample": "/storage/public_audio/Jone.wav",
         "plan": 3,
-        "speaker": "en-US-Wavenet-D",
+        "id": "en-US-Wavenet-D",
         "urlname": "David(Male)1"
     },
     {
@@ -14,8 +14,9 @@
         "trending": false,
         "name": "Emma (Female)",
         "describe": "",
+        "sample": "/storage/public_audio/Emma.wav",
         "plan": 3,
-        "speaker": "en-US-Wavenet-H",
+        "id": "en-US-Wavenet-H",
         "urlname": "Barbara(Female)"
     },
     {
@@ -23,28 +24,31 @@
         "trending": false,
         "name": "John (Male)",
         "describe": "",
+        "sample": "/storage/public_audio/John.wav",
         "plan": 3,
-        "speaker": "en-US-Wavenet-B",
+        "id": "en-US-Wavenet-B",
 
         "urlname": "John(Male)"
     },
     {
         "Languagename": "English (US)",
         "trending": false,
-        "name": "Robert (Male)",
+        "name": "Rob (Male)",
         "describe": "",
+        "sample": "/storage/public_audio/Rob.wav",
         "plan": 3,
-        "speaker": "en-US-Wavenet-A",
+        "id": "en-US-Wavenet-A",
 
         "urlname": "Robert(Male)"
     },
     {
         "Languagename": "English (US)",
         "trending": false,
-        "name": "Tony (Male)",
+        "name": "Tony (Male)",
         "describe": "",
+        "sample": "/storage/public_audio/Tony.wav",
         "plan": 4,
-        "speaker": "en-US-TonyNeural",
+        "id": "en-US-TonyNeural",
 
         "urlname": "Tony(Male)"
     },
@@ -53,8 +57,9 @@
         "trending": false,
         "name": "Jessica (Female)",
         "describe": "",
+        "sample": "/storage/public_audio/Jessica.wav",
         "plan": 3,
-        "speaker": "en-US-Wavenet-C",
+        "id": "en-US-Wavenet-C",
         "urlname": "Jessica(Female)"
     }
 ]

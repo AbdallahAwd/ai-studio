@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Content;
 
 use App\Http\Controllers\Controller;
 use App\Models\UserVoices;
+use getID3;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -136,6 +137,13 @@ class ContentController extends Controller
             Storage::put('public/audios/' . $fileName, $audioData); // Store the audio file
 
             $audioUrl = Storage::url('public/audios/' . $fileName); // Generate the URL for the stored file
+            // Use getID3 library to get audio duration
+            $audioFilePath = storage_path('app/public/audios/' . $fileName);
+
+            $getID3 = new getID3();
+            $audioFileInfo = $getID3->analyze($audioFilePath);
+
+            $audioDuration = (float) $audioFileInfo['playtime_seconds'];
 
             // Dispatch a job to delete the audio file after a certain time interval (e.g., 24 hours)
             // (new DeleteAudioFile($fileName))->delay(Carbon::now()->addSeconds(90));
@@ -144,7 +152,7 @@ class ContentController extends Controller
             return response()->json(['message' => $response->json()], 500);
         }
 
-        return response()->json(['audio_url' => $audioUrl], 200);
+        return response()->json(['audio_url' => $audioUrl, 'duration' => $audioDuration], 200);
     }
 
     /**
@@ -243,8 +251,17 @@ class ContentController extends Controller
             $fileName = 'AI-Studio-' . Str::random() . '.wav';
             Storage::put('public/audios/' . $fileName, $audioData);
 
+            // Use getID3 library to get audio duration
+            $audioFilePath = storage_path('app/public/audios/' . $fileName);
+
+            $getID3 = new getID3();
+            $audioFileInfo = $getID3->analyze($audioFilePath);
+
+            $audioDuration = (float) $audioFileInfo['playtime_seconds'];
+
             $audioUrl = Storage::url('public/audios/' . $fileName);
-            return response()->json(['audio_url' => $audioUrl], 200);
+
+            return response()->json(['audio_url' => $audioUrl, 'duration' => $audioDuration], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()]);
         }

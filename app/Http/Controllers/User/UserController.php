@@ -14,9 +14,11 @@ class UserController extends Controller
     public function get()
     {
         $user = Auth::user();
+
         return response()->json([
-            'user' => $user->load('voices'),
+            'user' => $user,
         ]);
+
     }
 
     /**

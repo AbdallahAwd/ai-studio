@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Content;
 
 use App\Http\Controllers\Controller;
+use App\Models\Samples;
 use App\Models\UserVoices;
 use getID3;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -108,7 +110,7 @@ class ContentController extends Controller
             $userVoices = UserVoices::where('user_id', $userId)->get();
 
             return response()->json([
-                'user' => $userVoices,
+                'user' => $userVoices->load('sample'),
                 "free" => json_decode($jsonContent),
                 "Premium" => $response->json()['voices'],
             ]);
@@ -128,6 +130,10 @@ class ContentController extends Controller
             'voice_id' => 'required',
             'text' => 'required|min:20',
         ]);
+        $voice = UserVoices::where('voice_id', '=', $data['voice_id'])->first();
+        if ($voice) {
+            $voice->touch();
+        }
 
         $response = Http::withHeaders([
             'xi-api-key' => env('ELEVEN_LABS_API_KEY'),
@@ -144,6 +150,7 @@ class ContentController extends Controller
             $audioFilePath = storage_path('app/public/audios/' . $fileName);
 
             $getID3 = new getID3();
+
             $audioFileInfo = $getID3->analyze($audioFilePath);
 
             $audioDuration = (float) $audioFileInfo['playtime_seconds'];
@@ -166,48 +173,337 @@ class ContentController extends Controller
     1- Make file got from user phone
     2- assign it to the request
      */
+    // public function cloneVoice(Request $request)
+    // {
+    //     // $filePath1 = public_path('storage/audios/AI-Studio-L4LUlekGwPCC8Kqd.mp3');
+    //     $data = $request->validate([
+    //         'audio_file' => 'required|mimes:mp3,wav,aac,m4a',
+    //         'name' => 'required|string|max:20',
+
+    //         'lang' => 'required|string',
+    //     ]);
+    //     if ($request->hasFile('audio_file') && $request->file('audio_file')->isValid()) {
+    //         $file = $request->file('audio_file');
+    //         $fileName = time() . '.' . $file->getClientOriginalExtension();
+    //         $file->storeAs('audios', $fileName, 'public'); // Store in 'public/audio' directory
+    //         // $customVoiceUrl = asset('storage/audios/' . $fileName);
+
+    //         $filePath = Storage::disk('public')->path('audios/' . $fileName);
+
+    //         // return response()->json(['file' => $filePath]);
+    //         // return response()->json(['url' => $customVoiceUrl], 201);
+
+    //         $response = Http::withHeaders([
+    //             'accept' => 'application/json',
+    //             'xi-api-key' => env('ELEVEN_LABS_API_KEY'),
+    //         ])
+    //             ->attach('files', file_get_contents($filePath), 'sample.mp3', ['Content-Type' => 'audio/mpeg'])
+    //             ->post('https://api.elevenlabs.io/v1/voices/add', [
+    //                 'name' => $request['name'],
+
+    //                 'labels' => json_encode(['language' => $request['lang']]),
+    //             ]);
+    //         $dir = "public/audios/{$fileName}";
+    //         if ($response->successful()) {
+    //             $user = Auth::user();
+    //             UserVoices::create([
+    //                 'user_id' => $user->id,
+    //                 'name' => $request['name'] ?? 'AI Studio',
+    //                 'lang' => $request['lang'] ?? 'English',
+    //                 'voice_id' => $response->json()['voice_id'],
+    //             ]);
+    //             Storage::delete($dir);
+    //             return response()->json($response->json());
+    //         } else {
+    //             $responseData = $response->json()['detail']['message'];
+    //             Storage::delete($dir);
+
+    //             return response()->json(['message' => $responseData], $response->status());
+
+    //         }
+    //     }
+
+    // }
     public function cloneVoice(Request $request)
     {
-        // $filePath1 = public_path('storage/audios/AI-Studio-L4LUlekGwPCC8Kqd.mp3');
+        // Validate the request data
         $data = $request->validate([
-            'audio_file' => 'required|mimes:mp3,wav,aac,m4a',
+            'audio_file1' => 'required|mimes:mp3,wav,aac,m4a',
+            'audio_file2' => 'mimes:mp3,wav,aac,m4a',
+            'audio_file3' => 'mimes:mp3,wav,aac,m4a',
+            'audio_file4' => 'mimes:mp3,wav,aac,m4a',
+            'audio_file5' => 'mimes:mp3,wav,aac,m4a',
             'name' => 'required|string|max:20',
-
             'lang' => 'required|string',
         ]);
-        if ($request->hasFile('audio_file') && $request->file('audio_file')->isValid()) {
-            $file = $request->file('audio_file');
-            $fileName = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('audios', $fileName, 'public'); // Store in 'public/audio' directory
-            $customVoiceUrl = asset('storage/audios/' . $fileName);
-            $filePath = Storage::disk('public')->path('audios/' . $fileName);
+        if ($request->hasFile('audio_file1') && $request->file('audio_file1')->isValid()) {
+            $files[] = $request->file('audio_file1');
+            if ($request->hasFile('audio_file2')) {
 
-            // return response()->json(['url' => $customVoiceUrl], 201);
+                $files[] = $request->file('audio_file2');
 
-            $response = Http::withHeaders([
+            }
+
+            if ($request->hasFile('audio_file3')) {
+
+                $files[] = $request->file('audio_file3');
+            }
+
+            if ($request->hasFile('audio_file4')) {
+
+                $files[] = $request->file('audio_file3');
+            }
+
+            if ($request->hasFile('audio_file5')) {
+
+                $files[] = $request->file('audio_file3');
+            }
+            $fileNames = [];
+            $filePaths = [];
+            // return response()->json([
+            //     'n' => count($files),
+
+            // ]);
+
+            foreach ($files as $file) {
+                $fileName = time() . '.' . $file->getClientOriginalExtension();
+                sleep(1);
+                $file->storeAs('audios', $fileName, 'public'); // Store in 'public/audio' directory
+                // $customVoiceUrl = asset('storage/audios/' . $fileName);
+
+                $filePath = Storage::disk('public')->path('audios/' . $fileName);
+                $filePaths[] = $filePath;
+                $fileNames[] = $fileName;
+
+            }
+
+            $mainResponse = Http::withHeaders([
                 'accept' => 'application/json',
                 'xi-api-key' => env('ELEVEN_LABS_API_KEY'),
-            ])
-                ->attach('files', file_get_contents($filePath), 'sample.mp3', ['Content-Type' => 'audio/mpeg'])
+            ]);
+
+            foreach ($filePaths as $key => $filePath) {
+                $fileContent = file_get_contents($filePath);
+
+                $mainResponse = $mainResponse->attach('files', $fileContent, "sample{$key}.mp3", ['Content-Type' => 'audio/mpeg']);
+
+            }
+            $user = Auth::user();
+            if ($user->letters_count >= 10000) {
+                $user->letters_count -= 10000;
+                $user->save();
+
+            } else {
+                return response()->json(['message' => 'Not have enough letters', 'c' => $user->letters_count]);
+
+            }
+            $response = $mainResponse
+            // ->attach('files', file_get_contents(reset($filePaths)), "sample1.mp3", ['Content-Type' => 'audio/mpeg'])
+            // ->attach('files', file_get_contents(end($filePaths)), "sample2.mp3", ['Content-Type' => 'audio/mpeg'])
                 ->post('https://api.elevenlabs.io/v1/voices/add', [
                     'name' => $request['name'],
 
                     'labels' => json_encode(['language' => $request['lang']]),
                 ]);
-            $dir = "public/audios/{$fileName}";
             if ($response->successful()) {
-                $user = Auth::user();
-                UserVoices::create([
+                $voiceId = $response->json()['voice_id'];
+                $sampleResponse = Http::withHeaders([
+                    'accept' => 'application/json',
+                    'xi-api-key' => env('ELEVEN_LABS_API_KEY'), // Replace with your actual xi-api-key
+                ])->get("https://api.elevenlabs.io/v1/voices/{$voiceId}");
+
+                $voice = UserVoices::create([
                     'user_id' => $user->id,
                     'name' => $request['name'] ?? 'AI Studio',
                     'lang' => $request['lang'] ?? 'English',
-                    'voice_id' => $response->json()['voice_id'],
+                    'voice_id' => $voiceId,
                 ]);
-                Storage::delete($dir);
+                if ($sampleResponse->successful()) {
+                    $samples = $sampleResponse->json()['samples'];
+                    foreach ($samples as $sample) {
+                        Samples::create([
+                            'user_voices_id' => $voice->id,
+                            'sample_id' => $sample['sample_id'],
+                        ]);
+                    }
+                }
+
+                foreach ($fileNames as $fileName) {
+                    $dir = "public/audios/{$fileName}";
+
+                    Storage::delete($dir);
+                }
                 return response()->json($response->json());
             } else {
                 $responseData = $response->json()['detail']['message'];
-                Storage::delete($dir);
+                // Storage::delete($dir);
+                foreach ($fileNames as $fileName) {
+                    $dir = "public/audios/{$fileName}";
+
+                    Storage::delete($fileName);
+                }
+
+                return response()->json(['message' => $responseData], $response->status());
+
+            }
+        }
+
+    }
+
+    public function deleteCloneVoice(Request $request, string $id)
+    {
+        $response = Http::withHeaders([
+            'accept' => 'application/json',
+            'xi-api-key' => env('ELEVEN_LABS_API_KEY'), // Replace with your actual xi-api-key
+        ])
+            ->delete("https://api.elevenlabs.io/v1/voices/{$id}"); // Replace <voice-id> with the actual voice ID
+
+        if ($response->successful()) {
+            // Request was successful, handle the response
+            $voice = UserVoices::where('voice_id', '=', $id);
+
+            $voice->delete();
+            return response()->json([
+                'message' => 'Deleted Successfully',
+            ]);
+
+        } else {
+            // Request failed, handle the error
+            return response()->json(['message' => 'Voice does not exist', 'detail' => $response->json()['detail']], $response->status());
+            // Your code to handle the error response goes here
+        }
+
+    }
+
+    public function editCloneVoice(Request $request, string $id)
+    {
+        // Validate the request data
+        $data = $request->validate([
+            'audio_file1' => 'required|mimes:mp3,wav,aac,m4a',
+            'audio_file2' => 'mimes:mp3,wav,aac,m4a',
+            'audio_file3' => 'mimes:mp3,wav,aac,m4a',
+            'audio_file4' => 'mimes:mp3,wav,aac,m4a',
+            'audio_file5' => 'mimes:mp3,wav,aac,m4a',
+            'name' => 'required|string|max:20',
+            'lang' => 'required|string',
+        ]);
+        if ($request->hasFile('audio_file1') && $request->file('audio_file1')->isValid()) {
+            $files[] = $request->file('audio_file1');
+            if ($request->hasFile('audio_file2')) {
+                $files[] = $request->file('audio_file2');
+            }
+
+            if ($request->hasFile('audio_file3')) {
+
+                $files[] = $request->file('audio_file3');
+            }
+
+            if ($request->hasFile('audio_file4')) {
+
+                $files[] = $request->file('audio_file3');
+            }
+
+            if ($request->hasFile('audio_file5')) {
+
+                $files[] = $request->file('audio_file3');
+            }
+            $fileNames = [];
+            $filePaths = [];
+            // return response()->json([
+            //     'n' => count($files),
+
+            // ]);
+
+            foreach ($files as $file) {
+                $fileName = time() . '.' . $file->getClientOriginalExtension();
+                sleep(1);
+                $file->storeAs('audios', $fileName, 'public'); // Store in 'public/audio' directory
+                // $customVoiceUrl = asset('storage/audios/' . $fileName);
+
+                $filePath = Storage::disk('public')->path('audios/' . $fileName);
+                $filePaths[] = $filePath;
+                $fileNames[] = $fileName;
+
+            }
+
+            $mainResponse = Http::withHeaders([
+                'accept' => 'application/json',
+                'xi-api-key' => env('ELEVEN_LABS_API_KEY'),
+            ]);
+
+            foreach ($filePaths as $key => $filePath) {
+                $fileContent = file_get_contents($filePath);
+
+                $mainResponse = $mainResponse->attach('files', $fileContent, "sample{$key}.mp3", ['Content-Type' => 'audio/mpeg']);
+
+            }
+            $voice = UserVoices::where('voice_id', '=', $id)->first();
+            $samples = Samples::where('user_voices_id', '=', $voice->id)->get();
+
+            foreach ($samples as $sample) {
+                $sampleId = $sample->sample_id;
+                $sampleDelete = Http::withHeaders([
+                    'accept' => 'application/json',
+                    'xi-api-key' => env('ELEVEN_LABS_API_KEY'), // Replace with your actual xi-api-key
+                ])->delete("https://api.elevenlabs.io/v1/voices/{$id}/samples/{$sampleId}");
+                if ($sampleDelete->successful()) {
+
+                    $sample->delete();
+
+                } else {
+                    // Request failed, handle the error
+                    $errorResponse = $sampleDelete->json();
+                    // Your code to handle the error response goes here
+                }
+
+            }
+            // return response()->json(['message' => 'samples deleted']);
+
+            $response = $mainResponse
+            // ->attach('files', file_get_contents(reset($filePaths)), "sample1.mp3", ['Content-Type' => 'audio/mpeg'])
+            // ->attach('files', file_get_contents(end($filePaths)), "sample2.mp3", ['Content-Type' => 'audio/mpeg'])
+                ->post("https://api.elevenlabs.io/v1/voices/{$id}/edit", [
+                    'name' => $request['name'],
+
+                    'labels' => json_encode(['language' => $request['lang']]),
+                ]);
+            if ($response->successful()) {
+
+                // $voice = UserVoices::where('voice_id', '=', $id)->first();
+
+                $voice->name = $request['name'];
+                $voice->lang = $request['lang'];
+
+                $sampleResponse = Http::withHeaders([
+                    'accept' => 'application/json',
+                    'xi-api-key' => env('ELEVEN_LABS_API_KEY'), // Replace with your actual xi-api-key
+                ])->get("https://api.elevenlabs.io/v1/voices/{$id}");
+
+                if ($sampleResponse->successful()) {
+                    $samples = $sampleResponse->json()['samples'];
+                    foreach ($samples as $sample) {
+                        Samples::create([
+                            'user_voices_id' => $voice->id,
+                            'sample_id' => $sample['sample_id'],
+                        ]);
+                    }
+                }
+
+                $voice->save();
+                foreach ($fileNames as $fileName) {
+                    $dir = "public/audios/{$fileName}";
+
+                    Storage::delete($dir);
+                }
+                return response()->json(['message' => 'Updated successfully']);
+            } else {
+                $responseData = $response->json()['detail']['message'];
+                // Storage::delete($dir);
+                foreach ($fileNames as $fileName) {
+                    $dir = "public/audios/{$fileName}";
+
+                    Storage::delete($fileName);
+                }
 
                 return response()->json(['message' => $responseData], $response->status());
 
@@ -219,9 +515,13 @@ class ContentController extends Controller
     public function getUserVoices()
     {
         $userId = Auth::user()->id;
-        $userVoices = UserVoices::where('user_id', $userId)->get();
 
-        return response()->json(['voices' => $userVoices]);
+        $voices = UserVoices::where('user_id', '=', $userId)->get();
+        return response()->json([
+
+            'voices' => $voices->load('sample'),
+        ]);
+
     }
 
     public function simpleVoiceGeneration(Request $request)
@@ -233,7 +533,7 @@ class ContentController extends Controller
                 'text' => 'required',
             ]);
 
-            $client = new Client();
+            $client = new Client(['timeout' => 1200]);
 
             $response = $client->post('https://apis.topmediai.com/tts', [
                 'headers' => [
@@ -268,6 +568,57 @@ class ContentController extends Controller
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()]);
         }
+    }
+
+    public function getCloneVoiceLast30Days()
+    {
+        $thirtyDaysAgo = Carbon::now()->subDays(30);
+
+        // Query and delete records older than 30 days
+        $voices = UserVoices::where('updated_at', '<', $thirtyDaysAgo)->get();
+
+        return response()->json([
+            'data' => $voices,
+        ]);
+    }
+
+    public function deleteCloneVoiceLast30Days()
+    {
+        $thirtyDaysAgo = Carbon::now()->subDays(30);
+
+        // Query and delete records older than 30 days
+        $voices = UserVoices::where('updated_at', '<', $thirtyDaysAgo)->get();
+
+        if ($voices) {
+            foreach ($voices as $voice) {
+                $response = Http::withHeaders([
+                    'accept' => 'application/json',
+                    'xi-api-key' => env('ELEVEN_LABS_API_KEY'), // Replace with your actual xi-api-key
+                ])
+                    ->delete("https://api.elevenlabs.io/v1/voices/{$voice['voice_id']}"); // Replace <voice-id> with the actual voice ID
+
+                if ($response->successful()) {
+                    // Request was successful, handle the response
+                    $voice = UserVoices::where('voice_id', '=', $voice['voice_id']);
+
+                    $voice->delete();
+
+                    return response()->json([
+                        'message' => 'Deleted Successfully',
+                    ]);
+
+                } else {
+                    // Request failed, handle the error
+                    return response()->json(['message' => 'Voice does not exist', 'detail' => $response->json()['detail']], $response->status());
+                    // Your code to handle the error response goes here
+                }
+
+            }
+        }
+
+        return response()->json([
+            'message' => 'No voices found',
+        ], 400);
     }
 
 }

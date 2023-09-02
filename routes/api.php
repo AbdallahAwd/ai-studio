@@ -24,12 +24,10 @@ Route::middleware(['auth:sanctum', 'update_letters_count'])->group(function () {
 
     Route::prefix('/user')->group(function () {
         Route::get('/', [UserController::class, 'get']);
-        // Define your routes here
         Route::put('/letters', [UserController::class, 'updateLetter']);
         Route::put('/ad', [UserController::class, 'watchAd']);
         Route::post('/logout', [LoginController::class, 'logout']);
 
-        // ...
     });
 
     Route::prefix('/script')->group(function () {
@@ -43,6 +41,8 @@ Route::middleware(['auth:sanctum', 'update_letters_count'])->group(function () {
         Route::post('/clone', [ContentController::class, 'cloneVoice']);
         Route::get('/get', [ContentController::class, 'getUserVoices']);
         Route::post('/simple/generate', [ContentController::class, 'simpleVoiceGeneration']);
+        Route::delete('/clone/delete/{id}', [ContentController::class, 'deleteCloneVoice']);
+        Route::post('/clone/edit/{id}', [ContentController::class, 'editCloneVoice']);
 
     });
     Route::post('/clone', [ReplicateController::class, 'cloneVoice']);
@@ -55,4 +55,6 @@ Route::middleware(['auth:sanctum', 'update_letters_count'])->group(function () {
         Route::post('/ideas', [PixbayController::class, 'getMainIdeas']);
         Route::get('/images', [PixbayController::class, 'scarp']);
     });
+    Route::get('/get/days30x', [ContentController::class, 'getCloneVoiceLast30Days']);
+    Route::delete('/del/days30x', [ContentController::class, 'deleteCloneVoiceLast30Days']);
 });

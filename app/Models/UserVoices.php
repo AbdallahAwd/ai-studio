@@ -15,9 +15,14 @@ class UserVoices extends Model
         'lang',
         'name',
         'voice_id',
+        'updated_at',
     ];
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function sample()
+    {
+        return $this->hasMany(Samples::class);
     }
 }

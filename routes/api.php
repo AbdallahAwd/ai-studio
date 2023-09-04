@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum', 'update_letters_count'])->group(function () {
         Route::post('/simple/generate', [ContentController::class, 'simpleVoiceGeneration']);
         Route::delete('/clone/delete/{id}', [ContentController::class, 'deleteCloneVoice']);
         Route::post('/clone/edit/{id}', [ContentController::class, 'editCloneVoice']);
+        Route::get('/clone/example', [ContentController::class, 'getSampleFromVoice']);
 
     });
     Route::post('/clone', [ReplicateController::class, 'cloneVoice']);

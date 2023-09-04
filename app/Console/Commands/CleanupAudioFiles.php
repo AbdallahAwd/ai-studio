@@ -14,7 +14,9 @@ class CleanupAudioFiles extends Command
     {
         $directory = 'public/audios/';
         $files = Storage::files($directory);
-
+        if (!$files) {
+            $this->info('No files to delete');
+        }
         foreach ($files as $file) {
             // $fileDate = Storage::lastModified($file);
             // $timeDifference = Carbon::now()->diffInHours(Carbon::createFromTimestamp($fileDate));

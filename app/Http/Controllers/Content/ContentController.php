@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -621,4 +622,53 @@ class ContentController extends Controller
         ], 400);
     }
 
+    public function getSampleFromVoice(Request $request)
+    {
+
+        $request->validate([
+            'voice_id' => 'required',
+            'sample_id' => 'required',
+        ]);
+
+        $client = new Client();
+
+        $voiceId = $request['voice_id'];
+        $sampleId = $request['sample_id'];
+// Define the API URL with placeholders for <voice-id> and <sample-id>
+        $url = "https://api.elevenlabs.io/v1/voices/{$voiceId}/samples/{$sampleId}/audio";
+
+// Define the headers
+        $headers = [
+            'accept' => 'audio/*',
+            'xi-api-key' => env('ELEVEN_LABS_API_KEY'),
+        ];
+
+        try {
+            // Send the GET request
+            $response = $client->get($url, [
+                'headers' => $headers,
+
+            ]);
+
+            // Get the audio content as a stream
+            $audioContent = $response->getBody();
+
+            // Set the appropriate content-type header for audio
+            $headers = [
+                'Content-Type' => 'audio/mpeg',
+            ];
+
+            $audioContentType = 'audio/mpeg'; // Change this to the appropriate audio format
+            $audioContentLength = $audioContent->getSize();
+            return Response::make($audioContent)
+                ->header('Content-Type', $audioContentType)
+                ->header('Content-Length', $audioContentLength);
+
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            // Handle exceptions if the request fails
+            // You can log the error or return an appropriate response
+            return response()->json(['error' => $e->getMessage()], $e->getCode());
+        }
+
+    }
 }

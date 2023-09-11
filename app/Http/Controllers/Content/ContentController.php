@@ -229,11 +229,11 @@ class ContentController extends Controller
     {
         // Validate the request data
         $data = $request->validate([
-            'audio_file1' => 'required|mimes:mp3,wav,aac,m4a',
-            'audio_file2' => 'mimes:mp3,wav,aac,m4a',
-            'audio_file3' => 'mimes:mp3,wav,aac,m4a',
-            'audio_file4' => 'mimes:mp3,wav,aac,m4a',
-            'audio_file5' => 'mimes:mp3,wav,aac,m4a',
+            'audio_file1' => 'required|',
+            'audio_file2' => '',
+            'audio_file3' => '',
+            'audio_file4' => '',
+            'audio_file5' => '',
             'name' => 'required|string|max:20',
             'lang' => 'required|string',
         ]);
@@ -380,11 +380,11 @@ class ContentController extends Controller
     {
         // Validate the request data
         $data = $request->validate([
-            'audio_file1' => 'required|mimes:mp3,wav,aac,m4a,opus',
-            'audio_file2' => 'mimes:mp3,wav,aac,m4a,opus',
-            'audio_file3' => 'mimes:mp3,wav,aac,m4a,opus',
-            'audio_file4' => 'mimes:mp3,wav,aac,m4a,opus',
-            'audio_file5' => 'mimes:mp3,wav,aac,m4a,opus',
+            'audio_file1' => 'required|',
+            'audio_file2' => '',
+            'audio_file3' => '',
+            'audio_file4' => '',
+            'audio_file5' => '',
             'name' => 'required|string|max:20',
             'lang' => 'required|string',
         ]);

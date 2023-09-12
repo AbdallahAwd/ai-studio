@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Replicate;
 use App\Http\Controllers\Controller;
 use getID3;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -78,20 +77,20 @@ class ReplicateController extends Controller
             $customVoiceUrl = asset('storage/audios/' . $fileName);
             $audioFilePath = storage_path('app/public/audios/' . $fileName);
             // Check audio duration
-            $getID3 = new getID3();
-            $audioFileInfo = $getID3->analyze($audioFilePath);
-            $audioDuration = $audioFileInfo['playtime_seconds'];
-            $user = Auth::user();
-            if ($user->letters_count <= 10000) {
+            // $getID3 = new getID3();
+            // $audioFileInfo = $getID3->analyze($audioFilePath);
+            // $audioDuration = $audioFileInfo['playtime_seconds'];
+            // $user = Auth::user();
+            // if ($user->letters_count <= 10000) {
 
-                if ($audioDuration > 300) {
-                    // Delete the uploaded file
+            // if ($audioDuration > 300) {
+            // Delete the uploaded file
 
-                    Storage::disk('public')->delete('audios/' . $fileName);
+            // Storage::disk('public')->delete('audios/' . $fileName);
 
-                    return response()->json(['message' => 'Audio is too long (max 5 min for users less than 10K letters)'], 400);
-                }
-            }
+            // return response()->json(['message' => 'Audio is too long (max 5 min for users less than 10K letters)'], 400);
+            // }
+            // }
 
         } else {
             return response()->json(['message' => 'Invalid audio file'], 400);

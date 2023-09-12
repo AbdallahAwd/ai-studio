@@ -229,7 +229,7 @@ class ContentController extends Controller
     {
         // Validate the request data
         $data = $request->validate([
-            'audio_file1' => 'required|',
+            'audio_file1' => 'required',
             'audio_file2' => '',
             'audio_file3' => '',
             'audio_file4' => '',
@@ -380,7 +380,7 @@ class ContentController extends Controller
     {
         // Validate the request data
         $data = $request->validate([
-            'audio_file1' => 'required|',
+            'audio_file1' => 'required',
             'audio_file2' => '',
             'audio_file3' => '',
             'audio_file4' => '',

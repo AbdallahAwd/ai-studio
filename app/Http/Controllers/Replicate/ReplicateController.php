@@ -69,7 +69,7 @@ class ReplicateController extends Controller
     public function generateSubtitle(Request $request)
     {
         $request->validate([
-            'audio_file' => 'required|mimes:mp3,wav',
+            'audio_file' => 'required',
         ]);
         if ($request->hasFile('audio_file') && $request->file('audio_file')->isValid()) {
             $file = $request->file('audio_file');
@@ -83,12 +83,12 @@ class ReplicateController extends Controller
             $user = Auth::user();
             if ($user->letters_count <= 10000) {
 
-                if ($audioDuration > 250) {
+                if ($audioDuration > 300) {
                     // Delete the uploaded file
 
                     Storage::disk('public')->delete('audios/' . $fileName);
 
-                    return response()->json(['message' => 'Audio is too long (max 4 min for users less than 10K letters)'], 400);
+                    return response()->json(['message' => 'Audio is too long (max 5 min for users less than 10K letters)'], 400);
                 }
             }
 
@@ -105,7 +105,7 @@ class ReplicateController extends Controller
             'audio_path' => $customVoiceUrl,
             // 'audio_path' => 'https://firebasestorage.googleapis.com/v0/b/super-ai-5fee1.appspot.com/o/ElevenLabs_2023-08-12T01_47_24.000Z_Callum.mp3?alt=media&token=d81a4866-a6a2-47d3-bb6d-e8a6680e0d0c',
             'format' => 'srt', // Use the full URL to the uploaded audio file
-            'model_name' => 'tiny',
+            'model_name' => 'base',
         ];
 
         $response = Http::post('https://replicate.com/api/models/m1guelpf/whisper-subtitles/versions/7f686e243a96c7f6f0f481bcef24d688a1369ed3983cea348d1f43b879615766/predictions', ['inputs' => $data]);
@@ -128,6 +128,7 @@ class ReplicateController extends Controller
             $srtContent = $this->generateTextFormat($formattedSubtitles, false);
 
             return response()->json([
+                "status" => 'done',
                 "output" => $srtContent,
                 "fotmated_subtitle" => $formattedSubtitles,
             ]);

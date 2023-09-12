@@ -76,9 +76,10 @@ class ReplicateController extends Controller
             $fileName = time() . '.' . $file->getClientOriginalExtension();
             $file->storeAs('audios', $fileName, 'public'); // Store in 'public/audio' directory
             $customVoiceUrl = asset('storage/audios/' . $fileName);
+            $audioFilePath = storage_path('app/public/audios/' . $fileName);
             // Check audio duration
             $getID3 = new getID3();
-            $audioFileInfo = $getID3->analyze($file->getRealPath());
+            $audioFileInfo = $getID3->analyze($audioFilePath);
             $audioDuration = $audioFileInfo['playtime_seconds'];
             $user = Auth::user();
             if ($user->letters_count <= 10000) {

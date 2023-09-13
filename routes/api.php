@@ -51,6 +51,7 @@ Route::middleware(['auth:sanctum', 'update_letters_count'])->group(function () {
     Route::get('/generated/srt', [ReplicateController::class, 'generatedSubtitle']);
     Route::put('/generated/srt/update', [ReplicateController::class, 'generateSrtFormat']);
     Route::get('/generated/srt/translate', [ReplicateController::class, 'translateSrt']);
+    Route::get('/translate/languages', [ReplicateController::class, 'supportedLanguages']);
 
     Route::prefix('/pixebay')->group(function () {
         Route::post('/ideas', [PixbayController::class, 'getMainIdeas']);

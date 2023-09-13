@@ -12,7 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('audio:cleanup')->everyFiveMinutes();
+        $schedule->command('audio:cleanup')
+            ->between('21:00', '03:00')
+            ->timezone('America/Chicago')
+            ->runInBackground()->withoutOverlapping();
 
     }
 

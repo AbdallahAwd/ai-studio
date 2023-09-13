@@ -255,4 +255,25 @@ class ReplicateController extends Controller
         return $srtContent;
     }
 
+    public function supportedLanguages(Request $request)
+    {
+        $response = Http::withHeaders([
+            'x-goog-spatula' => env('GOOGLE_TRANSLATE_KEY'), // Replace with your actual config key name
+        ])->get('https://translate-pa.googleapis.com/v1/supportedLanguages', [
+            'display_language' => $request['lang_code'] ?? 'en',
+            'client' => 'at',
+        ]);
+
+// Check if the request was successful (status code 200)
+        if ($response->successful()) {
+            $data = $response->json(); // Parse JSON response
+            // Handle the response data as needed
+            return $data;
+        } else {
+            // Handle the error if the request was not successful
+            return response()->json(['error' => 'API request failed'], $response->status());
+        }
+
+    }
+
 }

@@ -215,8 +215,8 @@ class ReplicateController extends Controller
             if ($response->successful()) {
                 $d = $this->generateIntervals($data['translation']);
                 return response()->json([
-                    'subtitle' => $data['translation'],
-                    'translated_subs' => $d,
+                    'output' => $data['translation'],
+                    'fotmated_subtitle' => $d,
                 ]);
             }
             return response()->json([

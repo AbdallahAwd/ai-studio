@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Content\ContentController;
 use App\Http\Controllers\Pixbay\PixbayController;
+use App\Http\Controllers\Replicate\DubController;
 use App\Http\Controllers\Replicate\ReplicateController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
@@ -56,6 +57,10 @@ Route::middleware(['auth:sanctum', 'update_letters_count'])->group(function () {
     Route::prefix('/pixebay')->group(function () {
         Route::post('/ideas', [PixbayController::class, 'getMainIdeas']);
         Route::get('/images', [PixbayController::class, 'scarp']);
+    });
+    Route::prefix('/dub')->group(function () {
+        Route::post('/generate', [DubController::class, 'generateDub']);
+        Route::get('/generated', [DubController::class, 'getGeneratedDub']);
     });
     Route::get('/get/days30x', [ContentController::class, 'getCloneVoiceLast30Days']);
     Route::delete('/del/days30x', [ContentController::class, 'deleteCloneVoiceLast30Days']);

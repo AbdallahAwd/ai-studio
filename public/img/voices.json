@@ -44,17 +44,6 @@
     {
         "Languagename": "English (US)",
         "trending": false,
-        "name": "Tony (Male)",
-        "describe": "",
-        "sample": "/storage/public_audio/Tony.wav",
-        "plan": 4,
-        "id": "en-US-TonyNeural",
-
-        "urlname": "Tony(Male)"
-    },
-    {
-        "Languagename": "English (US)",
-        "trending": false,
         "name": "Jessica (Female)",
         "describe": "",
         "sample": "/storage/public_audio/Jessica.wav",

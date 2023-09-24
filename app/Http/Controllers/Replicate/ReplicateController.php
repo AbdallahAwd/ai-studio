@@ -112,7 +112,37 @@ class ReplicateController extends Controller
 
         return response()->json($response->json());
     }
+    public function generateSubtitleWithURL(Request $request)
+    {
+        $request->validate([
+            'url' => 'url',
+        ]);
+        $extension = pathinfo(parse_url($request['url'], PHP_URL_PATH), PATHINFO_EXTENSION);
 
+// Check if the file extension corresponds to an audio type
+        $audioExtensions = ['mp3', 'ogg', 'wav', 'flac']; // Add more audio extensions as needed
+
+        if (in_array(strtolower($extension), $audioExtensions)) {
+            // The URL points to an audio file
+            // You can add your logic here
+            $data = [
+                'audio_path' => $request['url'],
+                'format' => 'srt', // Use the full URL to the uploaded audio file
+                'model_name' => 'tiny',
+            ];
+
+            $response = Http::post('https://replicate.com/api/models/m1guelpf/whisper-subtitles/versions/7f686e243a96c7f6f0f481bcef24d688a1369ed3983cea348d1f43b879615766/predictions', ['inputs' => $data]);
+
+            return response()->json($response->json());
+
+        } else {
+            return response()->json([
+                'message' => 'This is not an audio url please recheck it',
+            ]);
+
+        }
+
+    }
     public function generatedSubtitle(Request $request)
     {
         $request->validate([

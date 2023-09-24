@@ -34,12 +34,12 @@ class DubController extends Controller
                 $audioFileInfo = $getID3->analyze($file->getRealPath());
                 $audioDuration = $audioFileInfo['playtime_seconds'];
 
-                if ($audioDuration > 40) {
+                if ($audioDuration > 600) {
                     // Delete the uploaded file
 
                     Storage::disk('public')->delete('audios/' . $fileName);
 
-                    return response()->json(['message' => 'Audio is too long (max 40 seconds)'], 400);
+                    return response()->json(['message' => 'Audio is too long (max 10 min)'], 400);
                 }
 
                 $input = [

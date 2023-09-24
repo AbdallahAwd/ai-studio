@@ -49,6 +49,7 @@ Route::middleware(['auth:sanctum', 'update_letters_count'])->group(function () {
     });
     Route::post('/clone', [ReplicateController::class, 'cloneVoice']);
     Route::post('/generate/srt', [ReplicateController::class, 'generateSubtitle']);
+    Route::post('/url-generate/srt', [ReplicateController::class, 'generateSubtitleWithURL']);
     Route::get('/generated/srt', [ReplicateController::class, 'generatedSubtitle']);
     Route::put('/generated/srt/update', [ReplicateController::class, 'generateSrtFormat']);
     Route::get('/generated/srt/translate', [ReplicateController::class, 'translateSrt']);

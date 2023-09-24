@@ -41,17 +41,12 @@ class DubController extends Controller
 
                     return response()->json(['message' => 'Audio is too long (max 40 seconds)'], 400);
                 }
+
                 $input = [
                     'text' => $data['plain_text'],
                     'language' => $data['language_code'],
-                    'speaker_wav' => 'https://firebasestorage.googleapis.com/v0/b/super-ai-5fee1.appspot.com/o/andrew.wav?alt=media&token=93396e71-2edf-4c8f-868a-9733cc243ab9',
+                    'speaker_wav' => $customVoiceUrl,
                 ];
-                // TODO Push Version
-                // $input = [
-                //     'text' => $data['plain_text'],
-                //     'language' => $data['language_code'],
-                //     'speaker_wav' => $customVoiceUrl,
-                // ];
                 $response = Http::post('https://replicate.com/api/models/sigil-wen/xtts/versions/408deaff0c9ba77846ce43a9b797fa9d08ce1a70830ad74c0774c55fd3aabce5/predictions', ['inputs' => $input]);
 
                 return response()->json([

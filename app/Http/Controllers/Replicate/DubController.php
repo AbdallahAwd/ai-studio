@@ -74,9 +74,23 @@ class DubController extends Controller
             $data = $response->json()['prediction'];
             $output = $data['output'];
             if ($output != null) {
+                $getID3 = new getID3();
+                $mp3Contents = file_get_contents($output);
+                if ($mp3Contents === false) {
+                    return response()->json([
+                        "status" => "Error: Unable to fetch the remote MP3 file.",
+                    ]);
+                }
+                $localFilePath = storage_path('app/public/audios/' . time() . '.mp3');
+                file_put_contents($localFilePath, $mp3Contents);
+
+                $audioFileInfo = $getID3->analyze($localFilePath);
+
+                $audioDuration = (float) $audioFileInfo['playtime_seconds'];
 
                 return response()->json([
                     "status" => 'done',
+                    "duration" => $audioDuration,
                     "output" => $output,
 
                 ]);
@@ -88,7 +102,7 @@ class DubController extends Controller
             ]);
 
         } catch (\Throwable $th) {
-            return response()->json(['message' => "Error {$th->getMessage()}"], 401);
+            return response()->json(['message' => "Error {$th->getMessage()}"], 400);
 
         }
     }

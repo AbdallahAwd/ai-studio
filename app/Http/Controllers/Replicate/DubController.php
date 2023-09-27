@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Replicate;
 use App\Http\Controllers\Controller;
 use getID3;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -105,5 +106,101 @@ class DubController extends Controller
             return response()->json(['message' => "Error {$th->getMessage()}"], 400);
 
         }
+    }
+
+    public function addMusic(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                "audio" => "required|file",
+            ]);
+            if ($request->hasFile('audio') && $request->file('audio')->isValid()) {
+                $file = $request->file('audio');
+                $fileName = time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('audios', $fileName, 'public'); // Store in 'public/audio' directory
+                $customVoiceUrl = asset('storage/audios/' . $fileName); // Get full URL to the uploaded file
+                $audioUrl = Storage::url('public/audios/' . $fileName);
+
+                // Check audio duration
+                $getID3 = new getID3();
+                $audioFileInfo = $getID3->analyze($file->getRealPath());
+                $audioDuration = $audioFileInfo['playtime_seconds'];
+                $user = Auth::user();
+                $letters = $user->letters_count;
+
+                if ($letters > 10000) {
+
+                    if ($audioDuration > 600) {
+                        // Delete the uploaded file
+
+                        Storage::disk('public')->delete('audios/' . $fileName);
+
+                        return response()->json(['message' => 'Audio is too long (max 10 min)'], 400);
+                    }
+                }
+
+                $input = [
+                    "version" => "cd128044253523c86abfd743dea680c88559ad975ccd72378c8433f067ab5d0a",
+                    "input" => [
+                        // "audio" => $customVoiceUrl,
+                        "audio" => 'https://pbxt.replicate.delivery/JaYEZQz04mWq6KX0Gv7C1rteGCUGDLBJiguADjGVLedxnCx3/output.mp3',
+                    ],
+                ];
+                // "audio" : $customVoiceUrl,
+
+                // return response()->json($input);
+                $response = Http::withHeader(
+                    'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
+                )->timeout(600)->post('https://api.replicate.com/v1/predictions', $input);
+
+                return response()->json([
+                    'id' => $response->json()['id'],
+                    'input' => $response->json()['input'],
+                ], $response->status());
+
+            } else {
+                return response()->json(['message' => 'Invalid audio file'], 400);
+            }
+
+        } catch (\Throwable $th) {
+            return response()->json(['message' => "Error {$th->getMessage()}"], 400);
+
+        }
+
+    }
+    public function getMusic(Request $request)
+    {
+        try {
+            $request->validate([
+                'id' => 'required|string',
+            ]);
+
+            $response = Http::withHeader(
+                'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
+            )->get("https://api.replicate.com/v1/predictions/{$request['id']}", );
+            $data = $response->json();
+            $status = $data['status'];
+            // return response()->json($data);
+            if ($status === 'succeeded') {
+                $output = $data['output'];
+
+                return response()->json([
+                    "status" => 'done',
+
+                    "output" => $output,
+
+                ]);
+
+            }
+            return response()->json([
+                "status" => $data['status'],
+                "log" => $data['logs'],
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json(['message' => "Error {$th->getMessage()}"], 400);
+
+        }
+
     }
 }

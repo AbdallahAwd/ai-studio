@@ -142,8 +142,7 @@ class DubController extends Controller
                 $input = [
                     "version" => "cd128044253523c86abfd743dea680c88559ad975ccd72378c8433f067ab5d0a",
                     "input" => [
-                        // "audio" => $customVoiceUrl,
-                        "audio" => 'https://pbxt.replicate.delivery/JaYEZQz04mWq6KX0Gv7C1rteGCUGDLBJiguADjGVLedxnCx3/output.mp3',
+                        "audio" => $customVoiceUrl,
                     ],
                 ];
                 // "audio" : $customVoiceUrl,

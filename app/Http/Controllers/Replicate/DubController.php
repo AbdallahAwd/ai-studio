@@ -21,7 +21,9 @@ class DubController extends Controller
                 "plain_text" => "required|between:20,1000",
                 "language_code" => 'required|between:2,5',
                 "wav_file" => 'required|file|mimes:wav',
+
             ]);
+            $isReversed = $request['is_reverse'] ?? true;
             if ($request->hasFile('wav_file') && $request->file('wav_file')->isValid()) {
                 $file = $request->file('wav_file');
                 $fileName = time() . '.' . $file->getClientOriginalExtension();
@@ -46,13 +48,20 @@ class DubController extends Controller
                     'input' => [
                         'text' => $data['plain_text'],
                         'language' => $data['language_code'],
-                        'speaker_wav' => $customVoiceUrl,
-                        // 'speaker_wav' => 'https://pbxt.replicate.delivery/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
+                        // 'speaker_wav' => $customVoiceUrl,
+                        'speaker_wav' => 'https://pbxt.replicate.delivery/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
                     ],
                 ];
-                $response = Http::withHeader(
-                    'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
-                )->timeout(600)->post('https://api.replicate.com/v1/predictions', $input);
+                $response = null;
+                if ($isReversed == true) {
+                    $response = Http::timeout(600)->post('https://replicate.com/api/predictions', $input);
+
+                } else {
+
+                    $response = Http::withHeader(
+                        'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
+                    )->timeout(600)->post('https://api.replicate.com/v1/predictions', $input);
+                }
 
                 // return response()->json($response->json());
                 return response()->json([
@@ -75,11 +84,21 @@ class DubController extends Controller
         try {
             $request->validate([
                 'id' => 'required|string',
+
             ]);
 
-            $response = Http::withHeader(
-                'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
-            )->get("https://api.replicate.com/v1/predictions/{$request['id']}", );
+            $isReversed = $request['is_reverse'] ?? true;
+
+            $response = null;
+            if ($isReversed == true) {
+
+                $response = Http::get("https://replicate.com/api/predictions/{$request['id']}");
+            } else {
+
+                $response = Http::withHeader(
+                    'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
+                )->get("https://api.replicate.com/v1/predictions/{$request['id']}", );
+            }
             $data = $response->json();
             if (isset($data['detail'])) {
                 return response()->json($data, 400);

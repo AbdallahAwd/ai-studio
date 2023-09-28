@@ -109,7 +109,9 @@ class ReplicateController extends Controller
             'model_name' => 'tiny',
         ];
 
-        $response = Http::post('https://replicate.com/api/predictions', [
+        $response = Http::withHeader(
+            'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
+        )->timeout(600)->post('https://api.replicate.com/v1/predictions', [
             'version' => $version,
             'input' => $data,
         ]);

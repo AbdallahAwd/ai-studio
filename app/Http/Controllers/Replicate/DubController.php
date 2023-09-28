@@ -41,15 +41,22 @@ class DubController extends Controller
 
                     return response()->json(['message' => 'Audio is too long (max 10 min)'], 400);
                 }
-
+                $version = '408deaff0c9ba77846ce43a9b797fa9d08ce1a70830ad74c0774c55fd3aabce5';
                 $input = [
                     'text' => $data['plain_text'],
                     'language' => $data['language_code'],
-                    'speaker_wav' => $customVoiceUrl,
+                    // 'speaker_wav' => $customVoiceUrl,
+                    'speaker_wav' => 'https://replicate.delivery/pbxt/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
                 ];
-                $response = Http::post('https://replicate.com/api/models/sigil-wen/xtts/versions/408deaff0c9ba77846ce43a9b797fa9d08ce1a70830ad74c0774c55fd3aabce5/predictions', ['inputs' => $input]);
+                $response = Http::post('https://replicate.com/api/predictions', [
+                    'version' => $version,
+                    'input' => $input,
+                ]);
 
-                return response()->json($response->json());
+                return response()->json([
+                    "id" => $response->json()['id'],
+                    "input" => $response->json()['input'],
+                ]);
 
             } else {
                 return response()->json(['message' => 'Invalid audio file'], 400);
@@ -68,15 +75,15 @@ class DubController extends Controller
                 'id' => 'required|string',
             ]);
 
-            $response = Http::get("https://replicate.com/api/models/sigil-wen/xtts/versions/408deaff0c9ba77846ce43a9b797fa9d08ce1a70830ad74c0774c55fd3aabce5/predictions/{$request['id']}", );
-            $data = $response->json()['prediction'];
+            $response = Http::get("https://replicate.com/api/predictions/{$request['id']}", );
+            $data = $response->json();
             $output = $data['output'];
             if ($output != null) {
                 $getID3 = new getID3();
                 $mp3Contents = file_get_contents($output);
                 if ($mp3Contents === false) {
                     return response()->json([
-                        "status" => "Error: Unable to fetch the remote MP3 file.",
+                        "status" => "Error: Unable to fetch the remote Audio file.",
                     ]);
                 }
                 $localFilePath = storage_path('app/public/audios/' . time() . '.mp3');

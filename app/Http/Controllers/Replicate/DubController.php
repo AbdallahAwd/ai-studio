@@ -46,19 +46,19 @@ class DubController extends Controller
                     'input' => [
                         'text' => $data['plain_text'],
                         'language' => $data['language_code'],
-                        'speaker_wav' => $customVoiceUrl,
-                        // 'speaker_wav' => 'https://replicate.delivery/pbxt/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
+                        // 'speaker_wav' => $customVoiceUrl,
+                        'speaker_wav' => 'https://pbxt.replicate.delivery/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
                     ],
                 ];
                 $response = Http::withHeader(
                     'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
                 )->timeout(600)->post('https://api.replicate.com/v1/predictions', $input);
 
-                return response()->json($response->json());
-                // return response()->json([
-                //     "id" => $response->json()['id'],
-                //     "input" => $response->json()['input'],
-                // ]);
+                // return response()->json($response->json());
+                return response()->json([
+                    "id" => $response->json()['id'],
+                    "input" => $response->json()['input'],
+                ]);
 
             } else {
                 return response()->json(['message' => 'Invalid audio file'], 400);
@@ -79,10 +79,15 @@ class DubController extends Controller
 
             $response = Http::withHeader(
                 'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
-            )->get("https://replicate.com/api/predictions/{$request['id']}", );
+            )->get("https://api.replicate.com/v1/predictions/{$request['id']}", );
             $data = $response->json();
-            $output = $data['output'];
-            if ($output != null) {
+            if (isset($data['detail'])) {
+                return response()->json($data, 400);
+            }
+            $status = $data['status'];
+
+            if ($status === 'succeeded') {
+                $output = $data['output'];
                 $getID3 = new getID3();
                 $mp3Contents = file_get_contents($output);
                 if ($mp3Contents === false) {

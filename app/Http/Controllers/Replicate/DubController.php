@@ -50,7 +50,7 @@ class DubController extends Controller
                 $response = Http::post('https://replicate.com/api/models/sigil-wen/xtts/versions/408deaff0c9ba77846ce43a9b797fa9d08ce1a70830ad74c0774c55fd3aabce5/predictions', ['inputs' => $input]);
 
                 return response()->json([
-                    "id" => "{$response->json()['uuid']}",
+                    "id" => $response->json()['uuid'],
                 ]);
 
             } else {
@@ -58,7 +58,7 @@ class DubController extends Controller
             }
 
         } catch (\Throwable $th) {
-            return response()->json(['message' => "Error {$th->getMessage()}"], 401);
+            return response()->json(['message' => "Error {$th->getMessage()}"], 400);
 
         }
 

@@ -173,8 +173,9 @@ class ReplicateController extends Controller
             'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
         )->get("https://api.replicate.com/v1/predictions/{$request['id']}");
         $data = $response->json();
-        $output = $data['output'];
-        if ($output != null) {
+        $status = $data['status'];
+        if ($status === 'succeeded') {
+            $output = $data['output'];
             $formattedSubtitles = $this->generateIntervals($output);
             // TODO
             $srtContent = $this->generateTextFormat($formattedSubtitles, false);

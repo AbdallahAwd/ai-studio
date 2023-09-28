@@ -45,20 +45,18 @@ class DubController extends Controller
                 $input = [
                     'text' => $data['plain_text'],
                     'language' => $data['language_code'],
-                    // 'speaker_wav' => $customVoiceUrl,
-                    'speaker_wav' => 'https://replicate.delivery/pbxt/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
+                    'speaker_wav' => $customVoiceUrl,
+                    // 'speaker_wav' => 'https://replicate.delivery/pbxt/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
                 ];
-                $response = Http::post('https://replicate.com/api/predictions', [
+                $response = Http::withHeader('Authorization', 'Token ' . env('REPLICATE_TOKEN'))->post('https://replicate.com/api/predictions', [
                     'version' => $version,
                     'input' => $input,
                 ]);
 
-                return response()->json($response->json());
-
-                // return response()->json([
-                //     "id" => $response->json()['id'],
-                //     "input" => $response->json()['input'],
-                // ]);
+                return response()->json([
+                    "id" => $response->json()['id'],
+                    "input" => $response->json()['input'],
+                ]);
 
             } else {
                 return response()->json(['message' => 'Invalid audio file'], 400);
@@ -105,7 +103,7 @@ class DubController extends Controller
             }
             return response()->json([
                 "status" => $data['status'],
-                "log" => $data['run_logs'],
+                "log" => $data['logs'],
             ]);
 
         } catch (\Throwable $th) {

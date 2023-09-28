@@ -53,10 +53,12 @@ class DubController extends Controller
                     'input' => $input,
                 ]);
 
-                return response()->json([
-                    "id" => $response->json()['id'],
-                    "input" => $response->json()['input'],
-                ]);
+                return response()->json($response->json());
+
+                // return response()->json([
+                //     "id" => $response->json()['id'],
+                //     "input" => $response->json()['input'],
+                // ]);
 
             } else {
                 return response()->json(['message' => 'Invalid audio file'], 400);

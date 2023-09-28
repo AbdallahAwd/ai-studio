@@ -46,8 +46,8 @@ class DubController extends Controller
                     'input' => [
                         'text' => $data['plain_text'],
                         'language' => $data['language_code'],
-                        // 'speaker_wav' => $customVoiceUrl,
-                        'speaker_wav' => 'https://pbxt.replicate.delivery/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
+                        'speaker_wav' => $customVoiceUrl,
+                        // 'speaker_wav' => 'https://pbxt.replicate.delivery/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
                     ],
                 ];
                 $response = Http::withHeader(

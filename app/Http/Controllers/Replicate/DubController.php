@@ -41,17 +41,18 @@ class DubController extends Controller
 
                     return response()->json(['message' => 'Audio is too long (max 10 min)'], 400);
                 }
-                $version = '408deaff0c9ba77846ce43a9b797fa9d08ce1a70830ad74c0774c55fd3aabce5';
                 $input = [
-                    'text' => $data['plain_text'],
-                    'language' => $data['language_code'],
-                    'speaker_wav' => $customVoiceUrl,
-                    // 'speaker_wav' => 'https://replicate.delivery/pbxt/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
+                    'version' => '408deaff0c9ba77846ce43a9b797fa9d08ce1a70830ad74c0774c55fd3aabce5',
+                    'input' => [
+                        'text' => $data['plain_text'],
+                        'language' => $data['language_code'],
+                        'speaker_wav' => $customVoiceUrl,
+                        // 'speaker_wav' => 'https://replicate.delivery/pbxt/JYDf6xQfT7cOYljjNXbXxgauFQ1ZXJZf5GLNsth7FhsMU7IO/yosun-voice-acting.wav',
+                    ],
                 ];
-                $response = Http::withHeader('Authorization', 'Token ' . env('REPLICATE_TOKEN'))->post('https://replicate.com/api/predictions', [
-                    'version' => $version,
-                    'input' => $input,
-                ]);
+                $response = Http::withHeader(
+                    'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
+                )->timeout(600)->post('https://api.replicate.com/v1/predictions', $input);
 
                 return response()->json($response->json());
                 // return response()->json([
@@ -76,7 +77,9 @@ class DubController extends Controller
                 'id' => 'required|string',
             ]);
 
-            $response = Http::get("https://replicate.com/api/predictions/{$request['id']}", );
+            $response = Http::withHeader(
+                'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
+            )->get("https://replicate.com/api/predictions/{$request['id']}", );
             $data = $response->json();
             $output = $data['output'];
             if ($output != null) {

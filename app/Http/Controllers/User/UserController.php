@@ -17,6 +17,8 @@ class UserController extends Controller
 
         return response()->json([
             'user' => $user,
+            'version' => '0.0.1',
+            // 'what\'s new?' => ',
         ]);
 
     }
@@ -49,7 +51,7 @@ class UserController extends Controller
             $user->letters_count += 500;
             $user->save();
 
-            $expiration = now()->addMinutes(2); // Set the expiration time (1 hour in this example)
+            $expiration = now()->addMinutes(1); // Set the expiration time (1 hour in this example)
             $token = $user->createToken('ad-watched-token', ['*']);
             $token->accessToken->update([
                 'expires_at' => $expiration,

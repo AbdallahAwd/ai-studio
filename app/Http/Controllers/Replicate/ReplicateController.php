@@ -125,12 +125,12 @@ class ReplicateController extends Controller
     public function generateSubtitleWithURL(Request $request)
     {
         $request->validate([
-            'url' => 'url',
+            'url' => 'required|url',
         ]);
         $extension = pathinfo(parse_url($request['url'], PHP_URL_PATH), PATHINFO_EXTENSION);
 
 // Check if the file extension corresponds to an audio type
-        $audioExtensions = ['mp3', 'ogg', 'wav', 'flac']; // Add more audio extensions as needed
+        $audioExtensions = ['mp3', 'm4a', 'wav', 'flac']; // Add more audio extensions as needed
 
         if (in_array(strtolower($extension), $audioExtensions)) {
             // The URL points to an audio file

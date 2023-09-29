@@ -162,6 +162,48 @@ class DubController extends Controller
         }
 
     }
+
+    public function addMusicUrl(Request $request)
+    {
+        try {
+            $request->validate([
+                'url' => 'required|url',
+            ]);
+            $extension = pathinfo(parse_url($request['url'], PHP_URL_PATH), PATHINFO_EXTENSION);
+
+            $audioExtensions = ['mp3', 'm4a', 'wav', 'flac']; // Add more audio extensions as needed
+
+            if (in_array(strtolower($extension), $audioExtensions)) {
+                $input = [
+                    "version" => "cd128044253523c86abfd743dea680c88559ad975ccd72378c8433f067ab5d0a",
+                    "input" => [
+                        "audio" => $request['url'],
+                    ],
+                ];
+
+                $response = Http::withHeader(
+                    'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
+                )->timeout(600)->post('https://api.replicate.com/v1/predictions', $input);
+
+                return response()->json([
+                    'id' => $response->json()['id'],
+                    'input' => $response->json()['input'],
+                ], $response->status());
+
+            } else {
+                return response()->json([
+                    'message' => 'This is not an audio url please recheck it',
+                ]);
+
+            }
+
+        } catch (\Throwable $th) {
+            return response()->json(['message' => "Error {$th->getMessage()}"], 400);
+
+        }
+
+    }
+
     public function getMusic(Request $request)
     {
         try {
@@ -190,6 +232,33 @@ class DubController extends Controller
                 "status" => $data['status'],
                 "log" => $data['logs'],
             ]);
+
+        } catch (\Throwable $th) {
+            return response()->json(['message' => "Error {$th->getMessage()}"], 400);
+
+        }
+
+    }
+
+    public function uploadFile(Request $request)
+    {
+        try {
+            $request->validate([
+                'file' => 'required|file',
+            ]);
+            if ($request->hasFile('file') && $request->file('file')->isValid()) {
+                $file = $request->file('file');
+                $fileName = 'AI-Studio' . time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('audios', $fileName, 'public'); // Store in 'public/audio' directory
+                $customVoiceUrl = asset('storage/audios/' . $fileName); // Get full URL to the uploaded file
+                $audioUrl = Storage::url('public/audios/' . $fileName);
+
+                return response()->json([
+                    'path' => $audioUrl,
+                    'url' => $customVoiceUrl,
+                ]);
+            }
+            return response()->json(['message' => 'This File is Not Supported'], 400);
 
         } catch (\Throwable $th) {
             return response()->json(['message' => "Error {$th->getMessage()}"], 400);

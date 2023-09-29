@@ -63,8 +63,10 @@ Route::middleware(['auth:sanctum', 'update_letters_count'])->group(function () {
         Route::post('/generate', [DubController::class, 'generateDub']);
         Route::get('/generated', [DubController::class, 'getGeneratedDub']);
         Route::post('/add-music', [DubController::class, 'addMusic']);
+        Route::post('/add-music-url', [DubController::class, 'addMusicUrl']);
         Route::get('/get-music', [DubController::class, 'getMusic']);
     });
+    Route::post('/upload/audio', [DubController::class, 'uploadFile']);
     Route::get('/get/days30x', [ContentController::class, 'getCloneVoiceLast30Days']);
     Route::delete('/del/days30x', [ContentController::class, 'deleteCloneVoiceLast30Days']);
 });

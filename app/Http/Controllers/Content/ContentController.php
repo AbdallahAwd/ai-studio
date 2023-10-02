@@ -440,6 +440,7 @@ class ContentController extends Controller
             }
             $voice = UserVoices::where('voice_id', '=', $id)->first();
             $samples = Samples::where('user_voices_id', '=', $voice->id)->get();
+            $voice->touch();
 
             foreach ($samples as $sample) {
                 $sampleId = $sample->sample_id;

@@ -193,7 +193,7 @@ class DubController extends Controller
             } else {
                 return response()->json([
                     'message' => 'This is not an audio url please recheck it',
-                ]);
+                ], 400);
 
             }
 

@@ -295,7 +295,7 @@ class ContentController extends Controller
                 $user->save();
 
             } else {
-                return response()->json(['message' => 'Not have enough letters', 'c' => $user->letters_count]);
+                return response()->json(['message' => 'Not have enough letters', 'c' => $user->letters_count], 400);
 
             }
             $response = $mainResponse

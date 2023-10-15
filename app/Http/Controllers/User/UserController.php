@@ -68,7 +68,7 @@ class UserController extends Controller
             'message' => 'An expiring token is already generated for this user.',
             'token' => $existingToken,
 
-        ]);
+        ], 400);
     }
 
     /**

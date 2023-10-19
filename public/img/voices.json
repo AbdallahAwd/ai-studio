@@ -2,6 +2,16 @@
     {
         "Languagename": "English (US)",
         "trending": false,
+        "name": "Steve (Male)",
+        "describe": "",
+        "sample": "/storage/public_audio/Jone.wav",
+        "plan": 3,
+        "id": "en-US-Wavenet-J",
+        "urlname": "Steve(Male)"
+    },
+    {
+        "Languagename": "English (US)",
+        "trending": false,
         "name": "Jone (Male)",
         "describe": "",
         "sample": "/storage/public_audio/Jone.wav",
@@ -50,5 +60,15 @@
         "plan": 3,
         "id": "en-US-Wavenet-C",
         "urlname": "Jessica(Female)"
+    },
+    {
+        "Languagename": "English (US)",
+        "trending": true,
+        "name": "Joe Biden (Male)",
+        "describe": "",
+        "sample": "/storage/public_audio/joe.wav",
+        "plan": 6,
+        "id": "zDok9Q3uB15ONDkPDlyw",
+        "urlname": "Joe Biden(Male)"
     }
 ]

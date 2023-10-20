@@ -3,67 +3,13 @@
 namespace App\Http\Controllers\Replicate;
 
 use App\Http\Controllers\Controller;
-use getID3;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 
 class ReplicateController extends Controller
 {
 
 // ...
-
-    public function cloneVoice(Request $request)
-    {
-        // Validate the request data
-        $request->validate([
-            'audio_file' => 'required|mimes:mp3,wav',
-            'text' => 'required|string',
-        ]);
-
-        // Upload the audio file
-        if ($request->hasFile('audio_file') && $request->file('audio_file')->isValid()) {
-            $file = $request->file('audio_file');
-            $fileName = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('audios', $fileName, 'public'); // Store in 'public/audio' directory
-            $customVoiceUrl = asset('storage/audios/' . $fileName); // Get full URL to the uploaded file
-
-            // Check audio duration
-            $getID3 = new getID3();
-            $audioFileInfo = $getID3->analyze($file->getRealPath());
-            $audioDuration = $audioFileInfo['playtime_seconds'];
-
-            if ($audioDuration > 40) {
-                // Delete the uploaded file
-
-                Storage::disk('public')->delete('audios/' . $fileName);
-
-                return response()->json(['message' => 'Audio is too long (max 40 seconds)'], 400);
-            }
-        } else {
-            return response()->json(['message' => 'Invalid audio file'], 400);
-        }
-
-        // Prepare the data for the API request
-        $data = [
-            'text' => $request['text'],
-            'voice_a' => 'custom_voice',
-            'custom_voice' => 'https://firebasestorage.googleapis.com/v0/b/super-ai-5fee1.appspot.com/o/ElevenLabs_2023-08-11T18_51_24.000Z_Adam_0hitQkQoT5ki9GZYHmda.mp3?alt=media&token=5e1b4ce0-e8ae-49f4-b89a-f967a8e8c021', // Use the full URL to the uploaded audio file
-            'preset' => 'fast',
-        ];
-
-        // Send the API request
-        $response = Http::
-            post('https://replicate.com/api/models/afiaka87/tortoise-tts/versions/e9658de4b325863c4fcdc12d94bb7c9b54cbfe351b7ca1b36860008172b91c71/predictions', ['inputs' => $data]);
-
-        // Process and return the response
-        if ($response->successful()) {
-
-            return response()->json($response->json());
-        } else {
-            return response()->json(['message' => 'API request failed'], $response->status());
-        }
-    }
 
     public function generateSubtitle(Request $request)
     {
@@ -76,42 +22,37 @@ class ReplicateController extends Controller
             $file->storeAs('audios', $fileName, 'public'); // Store in 'public/audio' directory
             $customVoiceUrl = asset('storage/audios/' . $fileName);
             $audioFilePath = storage_path('app/public/audios/' . $fileName);
-            // Check audio duration
-            // $getID3 = new getID3();
-            // $audioFileInfo = $getID3->analyze($audioFilePath);
-            // $audioDuration = $audioFileInfo['playtime_seconds'];
-            // $user = Auth::user();
-            // if ($user->letters_count <= 10000) {
-
-            // if ($audioDuration > 300) {
-            // Delete the uploaded file
-
-            // Storage::disk('public')->delete('audios/' . $fileName);
-
-            // return response()->json(['message' => 'Audio is too long (max 5 min for users less than 10K letters)'], 400);
-            // }
-            // }
 
         } else {
             return response()->json(['message' => 'Invalid audio file'], 400);
         }
-        /**
 
-        "audio_path": "https://replicate.delivery/pbxt/J60yrm1ftAZeiZGbzaUjlH9fbenp8utC0hhdweKj75lXXDsA/andrew.mp3",
-        "format": "srt",
-        "model_name": "tiny"
-         */
-
+        // $version = '7f686e243a96c7f6f0f481bcef24d688a1369ed3983cea348d1f43b879615766';
+        // $data = [
+        //     'audio_path' => $customVoiceUrl,
+        //     // 'audio_path' => 'https://firebasestorage.googleapis.com/v0/b/super-ai-5fee1.appspot.com/o/ElevenLabs_2023-08-12T01_47_24.000Z_Callum.mp3?alt=media&token=d81a4866-a6a2-47d3-bb6d-e8a6680e0d0c',
+        //     'format' => 'srt', // Use the full URL to the uploaded audio file
+        //     'model_name' => 'base',
+        // ];
         $data = [
-            'audio_path' => $customVoiceUrl,
-            // 'audio_path' => 'https://firebasestorage.googleapis.com/v0/b/super-ai-5fee1.appspot.com/o/ElevenLabs_2023-08-12T01_47_24.000Z_Callum.mp3?alt=media&token=d81a4866-a6a2-47d3-bb6d-e8a6680e0d0c',
-            'format' => 'srt', // Use the full URL to the uploaded audio file
-            'model_name' => 'base',
+            // "audio" => "https://replicate.delivery/pbxt/JjUYezOdQytAXVrWo7O2yvTsFp4QVHOPqe8VjOZXmIgyQZl8/mo.mp4",
+            "audio" => $customVoiceUrl,
+            "model" => "large",
+            "translate" => false,
+            "temperature" => 0,
+            "transcription" => "srt",
+            "suppress_tokens" => "-1",
+            "logprob_threshold" => -1,
+            "no_speech_threshold" => 0.6,
+            "condition_on_previous_text" => true,
+            "compression_ratio_threshold" => 2.4,
+            "temperature_increment_on_fallback" => 0.2,
         ];
-
+        $version = '91ee9c0c3df30478510ff8c8a3a545add1ad0259ad3a9f78fba57fbc05ee64f7';
         $response = Http::withHeader(
             'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
-        )->timeout(600)->post('https://api.replicate.com/v1/deployments/abdallahawd/whisper-subtitle/predictions', [
+        )->timeout(600)->post('https://api.replicate.com/v1/predictions', [
+            'version' => $version,
             'input' => $data,
         ]);
 
@@ -121,6 +62,7 @@ class ReplicateController extends Controller
 
         ]);
     }
+
     public function generateSubtitleWithURL(Request $request)
     {
         $request->validate([
@@ -128,23 +70,30 @@ class ReplicateController extends Controller
         ]);
         $extension = pathinfo(parse_url($request['url'], PHP_URL_PATH), PATHINFO_EXTENSION);
 
-// Check if the file extension corresponds to an audio type
         $audioExtensions = ['mp3', 'm4a', 'wav', 'flac']; // Add more audio extensions as needed
 
         if (in_array(strtolower($extension), $audioExtensions)) {
             // The URL points to an audio file
             // You can add your logic here
-
             $data = [
-                'audio_path' => $request['url'],
-                'format' => 'srt', // Use the full URL to the uploaded audio file
-                'model_name' => 'base',
+                "audio" => $request['url'],
+                "model" => "large",
+                "translate" => false,
+                "temperature" => 0,
+                "transcription" => "srt",
+                "suppress_tokens" => "-1",
+                "logprob_threshold" => -1,
+                "no_speech_threshold" => 0.6,
+                "condition_on_previous_text" => true,
+                "compression_ratio_threshold" => 2.4,
+                "temperature_increment_on_fallback" => 0.2,
             ];
+            $version = '91ee9c0c3df30478510ff8c8a3a545add1ad0259ad3a9f78fba57fbc05ee64f7';
 
             $response = Http::withHeader(
                 'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
-            )->timeout(600)->post('https://api.replicate.com/v1/deployments/abdallahawd/whisper-subtitle/predictions', [
-
+            )->timeout(600)->post('https://api.replicate.com/v1/predictions', [
+                'version' => $version,
                 'input' => $data,
             ]);
 
@@ -173,20 +122,24 @@ class ReplicateController extends Controller
             'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
         )->get("https://api.replicate.com/v1/predictions/{$request['id']}");
         $data = $response->json();
+        /**
+        temp return
+         */
         $status = $data['status'];
         if ($status === 'succeeded') {
-            $output = $data['output'];
+            $output = $data['output']['transcription'];
             $formattedSubtitles = $this->generateIntervals($output);
             // TODO
-            $srtContent = $this->generateTextFormat($formattedSubtitles, false);
+            // $srtContent = $this->generateTextFormat($formattedSubtitles, false);
 
             return response()->json([
                 "status" => 'done',
-                "output" => $srtContent,
+                "output" => $output,
                 "fotmated_subtitle" => $formattedSubtitles,
             ]);
 
         }
+        // return response()->json($data);
         return response()->json([
             "status" => $data['status'],
             "logs" => $data['logs'],
@@ -196,7 +149,8 @@ class ReplicateController extends Controller
 
     public function generateIntervals($output)
     {
-        $input = trim($output['subtitles'] ?? $output);
+        $input = trim($output);
+        $input = str_replace("\n\n", "\n", $output);
 
         $segments = explode("\n", $input);
 
@@ -317,7 +271,6 @@ class ReplicateController extends Controller
             'client' => 'at',
         ]);
 
-// Check if the request was successful (status code 200)
         if ($response->successful()) {
             $data = $response->json(); // Parse JSON response
             // Handle the response data as needed

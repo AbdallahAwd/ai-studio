@@ -135,17 +135,18 @@ class DubController extends Controller
                 $audioUrl = Storage::url('public/audios/' . $fileName);
 
                 $input = [
-                    "version" => "cd128044253523c86abfd743dea680c88559ad975ccd72378c8433f067ab5d0a",
+
                     "input" => [
                         "audio" => $customVoiceUrl,
                     ],
                 ];
+                $url = 'https://api.replicate.com/v1/deployments/abdallahawd/vocal-removal/predictions';
                 // "audio" : $customVoiceUrl,
 
                 // return response()->json($input);
                 $response = Http::withHeader(
                     'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
-                )->timeout(600)->post('https://api.replicate.com/v1/predictions', $input);
+                )->timeout(600)->post($url, $input);
 
                 return response()->json([
                     'id' => $response->json()['id'],

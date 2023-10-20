@@ -101,7 +101,7 @@ class ReplicateController extends Controller
         "format": "srt",
         "model_name": "tiny"
          */
-        $version = '7f686e243a96c7f6f0f481bcef24d688a1369ed3983cea348d1f43b879615766';
+
         $data = [
             'audio_path' => $customVoiceUrl,
             // 'audio_path' => 'https://firebasestorage.googleapis.com/v0/b/super-ai-5fee1.appspot.com/o/ElevenLabs_2023-08-12T01_47_24.000Z_Callum.mp3?alt=media&token=d81a4866-a6a2-47d3-bb6d-e8a6680e0d0c',
@@ -111,8 +111,7 @@ class ReplicateController extends Controller
 
         $response = Http::withHeader(
             'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
-        )->timeout(600)->post('https://api.replicate.com/v1/predictions', [
-            'version' => $version,
+        )->timeout(600)->post('https://api.replicate.com/v1/deployments/abdallahawd/whisper-subtitle/predictions', [
             'input' => $data,
         ]);
 
@@ -135,7 +134,6 @@ class ReplicateController extends Controller
         if (in_array(strtolower($extension), $audioExtensions)) {
             // The URL points to an audio file
             // You can add your logic here
-            $version = '7f686e243a96c7f6f0f481bcef24d688a1369ed3983cea348d1f43b879615766';
 
             $data = [
                 'audio_path' => $request['url'],
@@ -145,8 +143,8 @@ class ReplicateController extends Controller
 
             $response = Http::withHeader(
                 'Authorization', 'Token ' . env('REPLICATE_TOKEN'),
-            )->timeout(600)->post('https://api.replicate.com/v1/predictions', [
-                'version' => $version,
+            )->timeout(600)->post('https://api.replicate.com/v1/deployments/abdallahawd/whisper-subtitle/predictions', [
+
                 'input' => $data,
             ]);
 

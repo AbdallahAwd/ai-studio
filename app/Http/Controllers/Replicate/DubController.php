@@ -140,7 +140,7 @@ class DubController extends Controller
                         "audio" => $customVoiceUrl,
                     ],
                 ];
-                $url = 'https://api.replicate.com/v1/deployments/abdallahawd/vocal-removal/predictions';
+                $url = 'https://api.replicate.com/v1/deployments/abdullahawd/vocal-removal/predictions';
                 // "audio" : $customVoiceUrl,
 
                 // return response()->json($input);

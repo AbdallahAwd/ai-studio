@@ -41,3 +41,15 @@ To get started with the AI-Studio Laravel Project, follow the steps below:
 If you would like to contribute to the project, please follow our Contribution Guidelines.
 ## License
 This project is licensed under the MIT License.
+
+# APP FLOWS
+<img src="https://i.postimg.cc/yNnLZDx9/Flow-1.png" />
+<img src="https://i.postimg.cc/13h7hxbg/Flow-2.png" />
+<img src="https://i.postimg.cc/RVnpDCp5/Flow-3.png" />
+<img src="https://i.postimg.cc/j2BgSB5F/Flow-4.png" />
+<img src="https://i.postimg.cc/bY5FgST9/Flow-5.png" />
+<img src="https://i.postimg.cc/g0GMjVzm/Flow-6.png" />
+<img src="https://i.postimg.cc/YC6ntnwd/Flow-7.png" />
+
+
+
